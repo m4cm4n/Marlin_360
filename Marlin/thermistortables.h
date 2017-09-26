@@ -1,148 +1,248 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 #ifndef THERMISTORTABLES_H_
 #define THERMISTORTABLES_H_
 
-#if (THERMISTORHEATER == 1) || (THERMISTORBED == 1) //100k bed thermistor
+#include "Marlin.h"
+#include "macros.h"
 
+#define OVERSAMPLENR 16
 
-#define NUMTEMPS_1 61
-const short temptable_1[NUMTEMPS_1][2] = {
-{	(23*16)	,	300	},
-{	(25*16)	,	295	},
-{	(27*16)	,	290	},
-{	(28*16)	,	285	},
-{	(31*16)	,	280	},
-{	(33*16)	,	275	},
-{	(35*16)	,	270	},
-{	(38*16)	,	265	},
-{	(41*16)	,	260	},
-{	(44*16)	,	255	},
-{	(48*16)	,	250	},
-{	(52*16)	,	245	},
-{	(56*16)	,	240	},
-{	(61*16)	,	235	},
-{	(66*16)	,	230	},
-{	(71*16)	,	225	},
-{	(78*16)	,	220	},
-{	(84*16)	,	215	},
-{	(92*16)	,	210	},
-{	(100*16),	205	},
-{	(109*16),	200	},
-{	(120*16),	195	},
-{	(131*16),	190	},
-{	(143*16),	185	},
-{	(156*16),	180	},
-{	(171*16),	175	},
-{	(187*16),	170	},
-{	(205*16),	165	},
-{	(224*16),	160	},
-{	(245*16),	155	},
-{	(268*16),	150	},
-{	(293*16),	145	},
-{	(320*16),	140	},
-{	(348*16),	135	},
-{	(379*16),	130	},
-{	(411*16),	125	},
-{	(445*16),	120	},
-{	(480*16),	115	},
-{	(516*16),	110	},
-{	(553*16),	105	},
-{	(591*16),	100	},
-{	(628*16),	95	},
-{	(665*16),	90	},
-{	(702*16),	85	},
-{	(737*16),	80	},
-{	(770*16),	75	},
-{	(801*16),	70	},
-{	(830*16),	65	},
-{	(857*16),	60	},
-{	(881*16),	55	},
-{	(903*16),	50	},
-{	(922*16),	45	},
-{	(939*16),	40	},
-{	(954*16),	35	},
-{	(966*16),	30	},
-{	(977*16),	25	},
-{	(985*16),	20	},
-{	(993*16),	15	},
-{	(999*16),	10	},
-{	(1004*16),	5	},
-{	(1008*16),	0	} //safety
-};
+#define ANY_THERMISTOR_IS(n) (THERMISTORHEATER_0 == n || THERMISTORHEATER_1 == n || THERMISTORHEATER_2 == n || THERMISTORHEATER_3 == n || THERMISTORHEATER_4 == n || THERMISTORBED == n)
+
+// Pt1000 and Pt100 handling
+//
+// Rt=R0*(1+a*T+b*T*T) [for T>0]
+// a=3.9083E-3, b=-5.775E-7
+#define PtA 3.9083E-3
+#define PtB -5.775E-7
+#define PtRt(T,R0) ((R0)*(1.0+(PtA)*(T)+(PtB)*(T)*(T)))
+#define PtAdVal(T,R0,Rup) (short)(1024/(Rup/PtRt(T,R0)+1))
+#define PtLine(T,R0,Rup) { PtAdVal(T,R0,Rup)*OVERSAMPLENR, T },
+
+#if ANY_THERMISTOR_IS(1) // 100k bed thermistor
+  #include "thermistortable_1.h"
 #endif
-#if (THERMISTORHEATER == 2) || (THERMISTORBED == 2) //200k bed thermistor
-#define NUMTEMPS_2 21
-const short temptable_2[NUMTEMPS_2][2] = {
-   {(1*16), 848},
-   {(54*16), 275},
-   {(107*16), 228},
-   {(160*16), 202},
-   {(213*16), 185},
-   {(266*16), 171},
-   {(319*16), 160},
-   {(372*16), 150},
-   {(425*16), 141},
-   {(478*16), 133},
-   {(531*16), 125},
-   {(584*16), 118},
-   {(637*16), 110},
-   {(690*16), 103},
-   {(743*16), 95},
-   {(796*16), 86},
-   {(849*16), 77},
-   {(902*16), 65},
-   {(955*16), 49},
-   {(1008*16), 17},
-   {(1020*16), 0} //safety
-};
-
+#if ANY_THERMISTOR_IS(2) // 200k bed thermistor
+  #include "thermistortable_2.h"
 #endif
-#if (THERMISTORHEATER == 3) || (THERMISTORBED == 3) //mendel-parts
-#define NUMTEMPS_3 28
-const short temptable_3[NUMTEMPS_3][2] = {
-		{(1*16),864},
-		{(21*16),300},
-		{(25*16),290},
-		{(29*16),280},
-		{(33*16),270},
-		{(39*16),260},
-		{(46*16),250},
-		{(54*16),240},
-		{(64*16),230},
-		{(75*16),220},
-		{(90*16),210},
-		{(107*16),200},
-		{(128*16),190},
-		{(154*16),180},
-		{(184*16),170},
-		{(221*16),160},
-		{(265*16),150},
-		{(316*16),140},
-		{(375*16),130},
-		{(441*16),120},
-		{(513*16),110},
-		{(588*16),100},
-		{(734*16),80},
-		{(856*16),60},
-		{(938*16),40},
-		{(986*16),20},
-		{(1008*16),0},
-		{(1018*16),-20}
-	};
-
+#if ANY_THERMISTOR_IS(3) // mendel-parts
+  #include "thermistortable_3.h"
+#endif
+#if ANY_THERMISTOR_IS(4) // 10k thermistor
+  #include "thermistortable_4.h"
+#endif
+#if ANY_THERMISTOR_IS(5) // 100k ParCan thermistor (104GT-2)
+  #include "thermistortable_5.h"
+#endif
+#if ANY_THERMISTOR_IS(6) // 100k Epcos thermistor
+  #include "thermistortable_6.h"
+#endif
+#if ANY_THERMISTOR_IS(7) // 100k Honeywell 135-104LAG-J01
+  #include "thermistortable_7.h"
+#endif
+#if ANY_THERMISTOR_IS(71) // 100k Honeywell 135-104LAF-J01
+  #include "thermistortable_71.h"
+#endif
+#if ANY_THERMISTOR_IS(8) // 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup)
+  #include "thermistortable_8.h"
+#endif
+#if ANY_THERMISTOR_IS(9) // 100k GE Sensing AL03006-58.2K-97-G1 (4.7k pullup)
+  #include "thermistortable_9.h"
+#endif
+#if ANY_THERMISTOR_IS(10) // 100k RS thermistor 198-961 (4.7k pullup)
+  #include "thermistortable_10.h"
+#endif
+#if ANY_THERMISTOR_IS(11) // QU-BD silicone bed QWG-104F-3950 thermistor
+  #include "thermistortable_11.h"
+#endif
+#if ANY_THERMISTOR_IS(13) // Hisens thermistor B25/50 =3950 +/-1%
+  #include "thermistortable_13.h"
+#endif
+#if ANY_THERMISTOR_IS(20) // PT100 with INA826 amp on Ultimaker v2.0 electronics
+  #include "thermistortable_20.h"
+#endif
+#if ANY_THERMISTOR_IS(51) // 100k EPCOS (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
+  #include "thermistortable_51.h"
+#endif
+#if ANY_THERMISTOR_IS(52) // 200k ATC Semitec 204GT-2 (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
+  #include "thermistortable_52.h"
+#endif
+#if ANY_THERMISTOR_IS(55) // 100k ATC Semitec 104GT-2 (Used on ParCan) (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
+  #include "thermistortable_55.h"
+#endif
+#if ANY_THERMISTOR_IS(60) // Maker's Tool Works Kapton Bed Thermistor
+  #include "thermistortable_60.h"
+#endif
+#if ANY_THERMISTOR_IS(66) // DyzeDesign 500°C Thermistor
+  #include "thermistortable_66.h"
+#endif
+#if ANY_THERMISTOR_IS(12) // 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
+  #include "thermistortable_12.h"
+#endif
+#if ANY_THERMISTOR_IS(70) // bqh2 stock thermistor
+  #include "thermistortable_70.h"
+#endif
+#if ANY_THERMISTOR_IS(75) // Many of the generic silicon heat pads use the MGB18-104F39050L32 Thermistor
+  #include "thermistortable_75.h"
+#endif
+#if ANY_THERMISTOR_IS(110) // Pt100 with 1k0 pullup
+  #include "thermistortable_110.h"
+#endif
+#if ANY_THERMISTOR_IS(147) // Pt100 with 4k7 pullup
+  #include "thermistortable_147.h"
+#endif
+#if ANY_THERMISTOR_IS(1010) // Pt1000 with 1k0 pullup
+  #include "thermistortable_1010.h"
+#endif
+#if ANY_THERMISTOR_IS(1047) // Pt1000 with 4k7 pullup
+  #include "thermistortable_1047.h"
+#endif
+#if ANY_THERMISTOR_IS(998) // User-defined table 1
+  #include "thermistortable_998.h"
+#endif
+#if ANY_THERMISTOR_IS(999) // User-defined table 2
+  #include "thermistortable_999.h"
 #endif
 
-#if THERMISTORHEATER == 1
-#define NUMTEMPS NUMTEMPS_1
-#define temptable temptable_1
-#elif THERMISTORHEATER == 2
-#define NUMTEMPS NUMTEMPS_2
-#define temptable temptable_2
-#elif THERMISTORHEATER == 3
-#define NUMTEMPS NUMTEMPS_3
-#define temptable temptable_3
+#define _TT_NAME(_N) temptable_ ## _N
+#define TT_NAME(_N) _TT_NAME(_N)
+
+#ifdef THERMISTORHEATER_0
+  #define HEATER_0_TEMPTABLE TT_NAME(THERMISTORHEATER_0)
+  #define HEATER_0_TEMPTABLE_LEN COUNT(HEATER_0_TEMPTABLE)
+#elif defined(HEATER_0_USES_THERMISTOR)
+  #error "No heater 0 thermistor table specified"
 #else
-#error No heater thermistor table specified
+  #define HEATER_0_TEMPTABLE NULL
+  #define HEATER_0_TEMPTABLE_LEN 0
 #endif
 
+#ifdef THERMISTORHEATER_1
+  #define HEATER_1_TEMPTABLE TT_NAME(THERMISTORHEATER_1)
+  #define HEATER_1_TEMPTABLE_LEN COUNT(HEATER_1_TEMPTABLE)
+#elif defined(HEATER_1_USES_THERMISTOR)
+  #error "No heater 1 thermistor table specified"
+#else
+  #define HEATER_1_TEMPTABLE NULL
+  #define HEATER_1_TEMPTABLE_LEN 0
+#endif
 
-#endif //THERMISTORTABLES_H_
+#ifdef THERMISTORHEATER_2
+  #define HEATER_2_TEMPTABLE TT_NAME(THERMISTORHEATER_2)
+  #define HEATER_2_TEMPTABLE_LEN COUNT(HEATER_2_TEMPTABLE)
+#elif defined(HEATER_2_USES_THERMISTOR)
+  #error "No heater 2 thermistor table specified"
+#else
+  #define HEATER_2_TEMPTABLE NULL
+  #define HEATER_2_TEMPTABLE_LEN 0
+#endif
+
+#ifdef THERMISTORHEATER_3
+  #define HEATER_3_TEMPTABLE TT_NAME(THERMISTORHEATER_3)
+  #define HEATER_3_TEMPTABLE_LEN COUNT(HEATER_3_TEMPTABLE)
+#elif defined(HEATER_3_USES_THERMISTOR)
+  #error "No heater 3 thermistor table specified"
+#else
+  #define HEATER_3_TEMPTABLE NULL
+  #define HEATER_3_TEMPTABLE_LEN 0
+#endif
+
+#ifdef THERMISTORHEATER_4
+  #define HEATER_4_TEMPTABLE TT_NAME(THERMISTORHEATER_4)
+  #define HEATER_4_TEMPTABLE_LEN COUNT(HEATER_4_TEMPTABLE)
+#elif defined(HEATER_4_USES_THERMISTOR)
+  #error "No heater 4 thermistor table specified"
+#else
+  #define HEATER_4_TEMPTABLE NULL
+  #define HEATER_4_TEMPTABLE_LEN 0
+#endif
+
+#ifdef THERMISTORBED
+  #define BEDTEMPTABLE TT_NAME(THERMISTORBED)
+  #define BEDTEMPTABLE_LEN COUNT(BEDTEMPTABLE)
+#else
+  #ifdef BED_USES_THERMISTOR
+    #error "No bed thermistor table specified"
+  #endif
+#endif
+
+// Set the high and low raw values for the heaters
+// For thermistors the highest temperature results in the lowest ADC value
+// For thermocouples the highest temperature results in the highest ADC value
+#ifndef HEATER_0_RAW_HI_TEMP
+  #ifdef HEATER_0_USES_THERMISTOR
+    #define HEATER_0_RAW_HI_TEMP 0
+    #define HEATER_0_RAW_LO_TEMP 16383
+  #else
+    #define HEATER_0_RAW_HI_TEMP 16383
+    #define HEATER_0_RAW_LO_TEMP 0
+  #endif
+#endif
+#ifndef HEATER_1_RAW_HI_TEMP
+  #ifdef HEATER_1_USES_THERMISTOR
+    #define HEATER_1_RAW_HI_TEMP 0
+    #define HEATER_1_RAW_LO_TEMP 16383
+  #else
+    #define HEATER_1_RAW_HI_TEMP 16383
+    #define HEATER_1_RAW_LO_TEMP 0
+  #endif
+#endif
+#ifndef HEATER_2_RAW_HI_TEMP
+  #ifdef HEATER_2_USES_THERMISTOR
+    #define HEATER_2_RAW_HI_TEMP 0
+    #define HEATER_2_RAW_LO_TEMP 16383
+  #else
+    #define HEATER_2_RAW_HI_TEMP 16383
+    #define HEATER_2_RAW_LO_TEMP 0
+  #endif
+#endif
+#ifndef HEATER_3_RAW_HI_TEMP
+  #ifdef HEATER_3_USES_THERMISTOR
+    #define HEATER_3_RAW_HI_TEMP 0
+    #define HEATER_3_RAW_LO_TEMP 16383
+  #else
+    #define HEATER_3_RAW_HI_TEMP 16383
+    #define HEATER_3_RAW_LO_TEMP 0
+  #endif
+#endif
+#ifndef HEATER_4_RAW_HI_TEMP
+  #ifdef HEATER_4_USES_THERMISTOR
+    #define HEATER_4_RAW_HI_TEMP 0
+    #define HEATER_4_RAW_LO_TEMP 16383
+  #else
+    #define HEATER_4_RAW_HI_TEMP 16383
+    #define HEATER_4_RAW_LO_TEMP 0
+  #endif
+#endif
+#ifndef HEATER_BED_RAW_HI_TEMP
+  #ifdef BED_USES_THERMISTOR
+    #define HEATER_BED_RAW_HI_TEMP 0
+    #define HEATER_BED_RAW_LO_TEMP 16383
+  #else
+    #define HEATER_BED_RAW_HI_TEMP 16383
+    #define HEATER_BED_RAW_LO_TEMP 0
+  #endif
+#endif
+
+#endif // THERMISTORTABLES_H_
