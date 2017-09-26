@@ -1069,17 +1069,33 @@ void process_commands()
         }
       }
       break;
-    }
-    //case 101: // G101 turn degree
-    //  if(Stopped == false) {
-    //    get_coordinates(); // For X Y Z
-    //    prepare_move_degree();
-    //    //ClearToSend();
-    //    return;
-    //  }
-     //break;
-  }
+    
+    case 101: // G101 turn degree
+      if(Stopped == false) {
+        int xdif = 0;
+        int turnDegree = 0;
+        int feed = 100;
 
+        if(code_seen('X')) {
+          xdif = code_value();
+        }
+
+        if(code_seen('A')) {
+          turnDegree = code_value();
+        }
+        
+        if (code_seen('F')) {
+          feed = code_value();
+        }
+        plan_buffer_line_Y_degree(current_position[X_AXIS]+xdif, turnDegree, current_position[Z_AXIS], current_position[E_AXIS], feed/60, active_extruder);
+        current_position[X_AXIS]+=xdif;
+
+        //ClearToSend();
+        return;
+      }
+      break;
+    }
+  }
   else if(code_seen('M'))
   {
     switch( (int)code_value() )
